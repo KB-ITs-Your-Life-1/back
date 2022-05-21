@@ -16,30 +16,25 @@ public class CalendarService{
     @Autowired
     private CalendarRepository calendarRepository;
 
-    // calendar LIST ´Ù °¡Á®¿À±â
+    // useridë¡œ calendar LIST ê°€ì ¸ì˜¤ê¸°
     public List<Calendar> getByUserid(String userid){
-        System.out.println("Calendar LIST ´Ù °¡Á®¿À±â");
         List<Calendar> list = calendarRepository.getByUserid(userid);
-        
         return list;
     }
-
+    // useridë¡œ ë³µìš© calendar LIST ê°€ì ¸ì˜¤ê¸°
     public Object getTakingPerUser(String userid){
         List<Object> list = calendarRepository.getTakingByUserid(userid);
         return list;
     }
 
+    // ì‚¬ìš©ì ë³µìš© ì •ë³´ update
     public void updateTaking(String id, String title, Date start, String sideEffectName) {
-        System.out.println("\n\n\n\n\nupdateTaking "+id+title+start+sideEffectName);
         calendarRepository.updateTakingByUserid(id, title, start,sideEffectName);
-
     }
 
+    // ì‚¬ìš©ì ë³µìš© ì •ë³´ delete
     public void deleteTaking(String id, String title, Date start) {
-
-        System.out.println("\n\n\n\n\n"+id+title+start);
         Calendar delTaking = calendarRepository.getOneTakingByUserid(id, title, start);
-        System.out.println("Service : deleteTaking  "+delTaking);
         calendarRepository.delete(delTaking);
     }
 }
