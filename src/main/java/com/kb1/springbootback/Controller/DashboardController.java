@@ -6,6 +6,8 @@ import com.kb1.springbootback.repository.calendar.CalendarRepository;
 import com.kb1.springbootback.repository.dashboard.DashboardRepository;
 import com.kb1.springbootback.service.CalendarService;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -40,12 +42,14 @@ public class DashboardController{
         List<Calendar> calendarListtmp = calendarRepository.getByUserid(userid);
         // 모든 약 0으로 초기화
         HashMap<String, Integer> hm = new HashMap<>();
-        // 약과 유효성분 set
+        // 모든 약과 유효성분 set <약 이름, 유효성분>
         HashMap<String, String> ingredientMap = new HashMap<>();
-        // 내 약 유효성분 set
+        // 내 약 유효성분 set <약 이름, 유효성분>
         HashMap<String, ArrayList<String>> myIngredientMap = new HashMap<>();
-        // 최종 피해야 할 약 리스트
-        HashMap<String, Integer> avoidList = new HashMap<>();
+        // 최종 피해야 할 약 리스트 <약 이름, 점수>
+        JSONObject jsonob = new JSONObject();
+        JSONArray jsonarr = new JSONArray();
+
         for(Medicine m :mediList){
             hm.put(m.getName(), 0); // 약 이름, score
             ingredientMap.put(m.getName(), m.getIngredient()); // 약 이름, 유효성분
@@ -69,7 +73,7 @@ public class DashboardController{
                 if(!m.getName().equals(c.getTitle()) && myIngredientMap.get(c.getTitle())!=null){ 
                     // 서로 다른 이름의 약만 고려
                     for(String s : myIngredientMap.get(c.getTitle())){
-                       if(m.getIngredient()!=null && m.getIngredient().contains(s)){ 
+                        if(m.getIngredient()!=null && m.getIngredient().contains(s)){ 
                            // 내 약의 유효성분이 기존 약 유효성분에 포함되어 있는지
                             cnt+=2;
                         }
@@ -94,12 +98,16 @@ public class DashboardController{
 				return obj2.getValue().compareTo(obj1.getValue());
 			}
 		});
-		// 피해야 할 약 결과 출력 :  AvoidList
+		// 결과 출력
 		for(Entry<String, Integer> entry : list_entries) {
-            avoidList.put(entry.getKey(), entry.getValue());
-            if(avoidList.size()>=10) break;
+            JSONObject data = new JSONObject();
+            data.put("name", entry.getKey());
+            data.put("score", entry.getValue());
+            jsonarr.add(data);
+            if(jsonarr.size()>=10) break; // 10개만 추출
 		}
-		return ResponseEntity.ok(avoidList);
+        jsonob.put("avoidList", jsonarr);
+		return ResponseEntity.ok(jsonob);
 	}
 
     // 부작용 있는 약 sideEffectMedi
